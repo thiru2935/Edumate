@@ -1,0 +1,653 @@
+openapi: 3.1.0
+info:
+  # Do not change the title, if the title changes, the import paths will be broken
+  title: Api
+  version: 0.1.0
+  description: EduMate API specification
+servers:
+  - url: /api
+    description: Base API path
+tags:
+  - name: health
+    description: Health operations
+  - name: auth
+    description: Authentication operations
+  - name: users
+    description: User operations
+  - name: sessions
+    description: Focus session operations
+  - name: materials
+    description: Study material operations
+  - name: chats
+    description: Chat operations
+  - name: dashboard
+    description: Dashboard aggregate operations
+paths:
+  /healthz:
+    get:
+      operationId: healthCheck
+      tags: [health]
+      summary: Health check
+      responses:
+        "200":
+          description: Healthy
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HealthStatus"
+
+  /auth/signup:
+    post:
+      operationId: signup
+      tags: [auth]
+      summary: Register a new user
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SignupBody"
+      responses:
+        "201":
+          description: User created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AuthResponse"
+        "400":
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "409":
+          description: Email already exists
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /auth/login:
+    post:
+      operationId: login
+      tags: [auth]
+      summary: Login user and get JWT token
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/LoginBody"
+      responses:
+        "200":
+          description: Login successful
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AuthResponse"
+        "401":
+          description: Invalid credentials
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /auth/me:
+    get:
+      operationId: getMe
+      tags: [auth]
+      summary: Get current authenticated user
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Current user
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /users:
+    get:
+      operationId: listUsers
+      tags: [users]
+      summary: List all users (for Connect page)
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: search
+          in: query
+          schema:
+            type: string
+        - name: role
+          in: query
+          schema:
+            type: string
+            enum: [student, mentor, teacher]
+      responses:
+        "200":
+          description: List of users
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/PublicUser"
+
+  /users/{id}:
+    get:
+      operationId: getUser
+      tags: [users]
+      summary: Get a user by ID
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: User found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PublicUser"
+
+  /users/{id}/focus-points:
+    patch:
+      operationId: updateFocusPoints
+      tags: [users]
+      summary: Update user focus points (teacher only)
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateFocusPointsBody"
+      responses:
+        "200":
+          description: Focus points updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PublicUser"
+
+  /sessions:
+    get:
+      operationId: listSessions
+      tags: [sessions]
+      summary: List sessions for authenticated user
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: List of sessions
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Session"
+    post:
+      operationId: createSession
+      tags: [sessions]
+      summary: Record a completed focus session
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateSessionBody"
+      responses:
+        "201":
+          description: Session created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Session"
+
+  /materials:
+    get:
+      operationId: listMaterials
+      tags: [materials]
+      summary: List all study materials
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: List of materials
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Material"
+    post:
+      operationId: createMaterial
+      tags: [materials]
+      summary: Upload a study material
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateMaterialBody"
+      responses:
+        "201":
+          description: Material created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Material"
+
+  /chats/{userId}:
+    get:
+      operationId: getChat
+      tags: [chats]
+      summary: Get chat messages with a specific user
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: List of messages
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/ChatMessage"
+    post:
+      operationId: sendMessage
+      tags: [chats]
+      summary: Send a message to a user
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SendMessageBody"
+      responses:
+        "201":
+          description: Message sent
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ChatMessage"
+
+  /dashboard/student-summary:
+    get:
+      operationId: getStudentSummary
+      tags: [dashboard]
+      summary: Get student dashboard summary stats
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Summary stats
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/StudentSummary"
+
+  /dashboard/leaderboard:
+    get:
+      operationId: getLeaderboard
+      tags: [dashboard]
+      summary: Top students by focus points
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Leaderboard
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/LeaderboardEntry"
+
+  /dashboard/teacher-overview:
+    get:
+      operationId: getTeacherOverview
+      tags: [dashboard]
+      summary: Get teacher dashboard overview
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Teacher overview stats
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TeacherOverview"
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  schemas:
+    HealthStatus:
+      type: object
+      properties:
+        status:
+          type: string
+      required:
+        - status
+
+    ErrorResponse:
+      type: object
+      properties:
+        error:
+          type: string
+      required:
+        - error
+
+    SignupBody:
+      type: object
+      properties:
+        name:
+          type: string
+          minLength: 2
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+          minLength: 6
+        age:
+          type: integer
+          minimum: 10
+          maximum: 100
+        role:
+          type: string
+          enum: [student, mentor, teacher]
+      required:
+        - name
+        - email
+        - password
+        - age
+        - role
+
+    LoginBody:
+      type: object
+      properties:
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+      required:
+        - email
+        - password
+
+    AuthResponse:
+      type: object
+      properties:
+        token:
+          type: string
+        user:
+          $ref: "#/components/schemas/User"
+      required:
+        - token
+        - user
+
+    User:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        email:
+          type: string
+        role:
+          type: string
+          enum: [student, mentor, teacher]
+        age:
+          type: integer
+        focusPoints:
+          type: integer
+        createdAt:
+          type: string
+          format: date-time
+      required:
+        - id
+        - name
+        - email
+        - role
+        - age
+        - focusPoints
+        - createdAt
+
+    PublicUser:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        role:
+          type: string
+          enum: [student, mentor, teacher]
+        age:
+          type: integer
+        focusPoints:
+          type: integer
+        createdAt:
+          type: string
+          format: date-time
+      required:
+        - id
+        - name
+        - role
+        - age
+        - focusPoints
+        - createdAt
+
+    UpdateFocusPointsBody:
+      type: object
+      properties:
+        points:
+          type: integer
+      required:
+        - points
+
+    Session:
+      type: object
+      properties:
+        id:
+          type: integer
+        userId:
+          type: integer
+        duration:
+          type: integer
+        pointsEarned:
+          type: integer
+        createdAt:
+          type: string
+          format: date-time
+      required:
+        - id
+        - userId
+        - duration
+        - pointsEarned
+        - createdAt
+
+    CreateSessionBody:
+      type: object
+      properties:
+        duration:
+          type: integer
+          description: Duration in minutes
+        pointsEarned:
+          type: integer
+      required:
+        - duration
+        - pointsEarned
+
+    Material:
+      type: object
+      properties:
+        id:
+          type: integer
+        title:
+          type: string
+        fileUrl:
+          type: string
+        uploadedBy:
+          type: integer
+        uploaderName:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+      required:
+        - id
+        - title
+        - fileUrl
+        - uploadedBy
+        - uploaderName
+        - createdAt
+
+    CreateMaterialBody:
+      type: object
+      properties:
+        title:
+          type: string
+        fileUrl:
+          type: string
+      required:
+        - title
+        - fileUrl
+
+    ChatMessage:
+      type: object
+      properties:
+        id:
+          type: integer
+        senderId:
+          type: integer
+        receiverId:
+          type: integer
+        message:
+          type: string
+        timestamp:
+          type: string
+          format: date-time
+        senderName:
+          type: string
+      required:
+        - id
+        - senderId
+        - receiverId
+        - message
+        - timestamp
+        - senderName
+
+    SendMessageBody:
+      type: object
+      properties:
+        message:
+          type: string
+          minLength: 1
+      required:
+        - message
+
+    StudentSummary:
+      type: object
+      properties:
+        focusPoints:
+          type: integer
+        totalStudyMinutes:
+          type: integer
+        sessionCount:
+          type: integer
+        currentStreak:
+          type: integer
+        rank:
+          type: integer
+      required:
+        - focusPoints
+        - totalStudyMinutes
+        - sessionCount
+        - currentStreak
+        - rank
+
+    LeaderboardEntry:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        role:
+          type: string
+        focusPoints:
+          type: integer
+        rank:
+          type: integer
+      required:
+        - id
+        - name
+        - role
+        - focusPoints
+        - rank
+
+    TeacherOverview:
+      type: object
+      properties:
+        totalStudents:
+          type: integer
+        totalMentors:
+          type: integer
+        totalMaterials:
+          type: integer
+        totalSessions:
+          type: integer
+        topStudents:
+          type: array
+          items:
+            $ref: "#/components/schemas/LeaderboardEntry"
+      required:
+        - totalStudents
+        - totalMentors
+        - totalMaterials
+        - totalSessions
+        - topStudents
