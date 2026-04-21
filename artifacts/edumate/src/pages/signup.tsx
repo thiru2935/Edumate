@@ -30,7 +30,28 @@ export default function Signup() {
         setLocation(`/dashboard/${role}`);
       },
       onError: (err: unknown) => {
-        const msg = (err as { response?: { data?: { error?: string } } })?.response?.data?.error || "Signup failed";
+        const apiErr = err as {
+          status?: number;
+          data?: { error?: string; message?: string; detail?: string } | string | null;
+          message?: string;
+        };
+
+        const dataMessage =
+          typeof apiErr.data === "string"
+            ? apiErr.data
+            : apiErr.data?.error || apiErr.data?.message || apiErr.data?.detail;
+
+        const rawMessage = dataMessage || apiErr.message || "Signup failed";
+        const normalized = rawMessage.toLowerCase();
+
+        const msg =
+          apiErr.status === 409 ||
+          normalized.includes("already registered") ||
+          normalized.includes("already exists") ||
+          normalized.includes("already exist")
+            ? "Account already exists. Please login instead."
+            : rawMessage;
+
         toast({ title: "Error", description: msg, variant: "destructive" });
       },
     },
@@ -169,7 +190,7 @@ export default function Signup() {
                 </div>
                 <Button
                   type="submit"
-                  className="w-full bg-indigo-600 hover:bg-indigo-700 mt-2"
+                  className="w-full bg-indigo-600 hover:bg-black hover:text-white mt-2"
                   disabled={signup.isPending}
                 >
                   {signup.isPending ? "Creating account..." : "Create Account"}

@@ -4,86 +4,114 @@ import { db, usersTable } from "@workspace/db";
 import { eq } from "drizzle-orm";
 import { SignupBody, LoginBody } from "@workspace/api-zod";
 import { signToken, requireAuth, type AuthRequest } from "../lib/auth";
+import { logger } from "../lib/logger";
 
 const router = Router();
 
+function isUniqueEmailViolation(err: unknown): boolean {
+  if (!err || typeof err !== "object") return false;
+
+  const pgErr = err as { code?: string; constraint?: string; detail?: string };
+  if (pgErr.code !== "23505") return false;
+
+  const constraint = pgErr.constraint?.toLowerCase() ?? "";
+  const detail = pgErr.detail?.toLowerCase() ?? "";
+
+  return constraint.includes("email") || detail.includes("(email)");
+}
+
 router.post("/auth/signup", async (req, res): Promise<void> => {
-  const parsed = SignupBody.safeParse(req.body);
-  if (!parsed.success) {
-    res.status(400).json({ error: parsed.error.message });
-    return;
+  try {
+    const parsed = SignupBody.safeParse(req.body);
+    if (!parsed.success) {
+      res.status(400).json({ error: parsed.error.message });
+      return;
+    }
+
+    const { name, email, password, age, role } = parsed.data;
+
+    const existing = await db.select().from(usersTable).where(eq(usersTable.email, email));
+    if (existing.length > 0) {
+      res.status(409).json({ error: "Email already registered" });
+      return;
+    }
+
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    const [user] = await db.insert(usersTable).values({
+      name,
+      email,
+      password: hashedPassword,
+      age,
+      role,
+      focusPoints: 0,
+    }).returning();
+
+    const token = signToken({ id: user.id, email: user.email, role: user.role });
+
+    res.status(201).json({
+      token,
+      user: {
+        id: user.id,
+        name: user.name,
+        email: user.email,
+        role: user.role,
+        age: user.age,
+        focusPoints: user.focusPoints,
+        createdAt: user.createdAt,
+      },
+    });
+  } catch (err) {
+    if (isUniqueEmailViolation(err)) {
+      res.status(409).json({ error: "Email already registered" });
+      return;
+    }
+
+    logger.error({ err }, "Signup failed");
+    res.status(500).json({ error: "Internal server error" });
   }
-
-  const { name, email, password, age, role } = parsed.data;
-
-  const existing = await db.select().from(usersTable).where(eq(usersTable.email, email));
-  if (existing.length > 0) {
-    res.status(409).json({ error: "Email already registered" });
-    return;
-  }
-
-  const hashedPassword = await bcrypt.hash(password, 10);
-
-  const [user] = await db.insert(usersTable).values({
-    name,
-    email,
-    password: hashedPassword,
-    age,
-    role,
-    focusPoints: 0,
-  }).returning();
-
-  const token = signToken({ id: user.id, email: user.email, role: user.role });
-
-  res.status(201).json({
-    token,
-    user: {
-      id: user.id,
-      name: user.name,
-      email: user.email,
-      role: user.role,
-      age: user.age,
-      focusPoints: user.focusPoints,
-      createdAt: user.createdAt,
-    },
-  });
 });
 
 router.post("/auth/login", async (req, res): Promise<void> => {
-  const parsed = LoginBody.safeParse(req.body);
-  if (!parsed.success) {
-    res.status(400).json({ error: parsed.error.message });
-    return;
+  try {
+    const parsed = LoginBody.safeParse(req.body);
+    if (!parsed.success) {
+      res.status(400).json({ error: parsed.error.message });
+      return;
+    }
+
+    const { email, password } = parsed.data;
+
+    const [user] = await db.select().from(usersTable).where(eq(usersTable.email, email));
+    if (!user) {
+      res.status(401).json({ error: "Invalid email or password" });
+      return;
+    }
+
+    const valid = await bcrypt.compare(password, user.password);
+    if (!valid) {
+      res.status(401).json({ error: "Invalid email or password" });
+      return;
+    }
+
+    const token = signToken({ id: user.id, email: user.email, role: user.role });
+
+    res.json({
+      token,
+      user: {
+        id: user.id,
+        name: user.name,
+        email: user.email,
+        role: user.role,
+        age: user.age,
+        focusPoints: user.focusPoints,
+        createdAt: user.createdAt,
+      },
+    });
+  } catch (err) {
+    logger.error({ err }, "Login failed");
+    res.status(500).json({ error: "Internal server error" });
   }
-
-  const { email, password } = parsed.data;
-
-  const [user] = await db.select().from(usersTable).where(eq(usersTable.email, email));
-  if (!user) {
-    res.status(401).json({ error: "Invalid email or password" });
-    return;
-  }
-
-  const valid = await bcrypt.compare(password, user.password);
-  if (!valid) {
-    res.status(401).json({ error: "Invalid email or password" });
-    return;
-  }
-
-  const token = signToken({ id: user.id, email: user.email, role: user.role });
-
-  res.json({
-    token,
-    user: {
-      id: user.id,
-      name: user.name,
-      email: user.email,
-      role: user.role,
-      age: user.age,
-      focusPoints: user.focusPoints,
-      createdAt: user.createdAt,
-    },
-  });
 });
 
 router.get("/auth/me", requireAuth, async (req: AuthRequest, res): Promise<void> => {

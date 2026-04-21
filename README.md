@@ -17,14 +17,6 @@
 
 </div>
 
-## 🌐 Live Demo
-
-> 🚧 Add your deployed URL once available:
->
-> `https://your-edumate-demo-url.com`
-
----
-
 ## 📋 Overview
 
 **EduMate** is a modern full-stack monorepo designed to support digital learning journeys for students, mentors, and teachers.
@@ -43,29 +35,45 @@ The project is built for local-first developer experience in VS Code with clean 
 
 ## 🖼 Showcase
 
-> Replace these placeholders with your actual screenshots/GIFs.
+### Demo
 
-### Hero Banner
-
-```md
-![EduMate Banner](./attached_assets/banner-edumate.png)
-```
-
-### Product Screens
-
-```md
-![Student Dashboard](./attached_assets/student-dashboard.png)
-![Mentor Chat](./attached_assets/mentor-chat.png)
-![Teacher Overview](./attached_assets/teacher-overview.png)
-```
-
-### Optional Demo GIF
-
-```md
 ![EduMate Demo](./attached_assets/edumate-demo.gif)
-```
 
----
+### Homepage
+
+![EduMate Banner](./attached_assets/1.png)
+![EduMate Banner](./attached_assets/2.png)
+![EduMate Banner](./attached_assets/3.png)
+![EduMate Banner](./attached_assets/4.png)
+![EduMate Banner](./attached_assets/5.png)
+![EduMate Banner](./attached_assets/6.png)
+
+### Login
+
+![Login](./attached_assets/7.png)
+![Login](./attached_assets/7-2.png)
+
+### Student
+
+![Student Dashboard](./attached_assets/8.png)
+![Student Dashboard](./attached_assets/9.png)
+![Student Dashboard](./attached_assets/10.png)
+![Student Dashboard](./attached_assets/11.png)
+![Student Dashboard](./attached_assets/12.png)
+![Student Dashboard](./attached_assets/13.png)
+
+### Mentor
+
+![Mentor Chat](./attached_assets/14.png)
+![Mentor Chat](./attached_assets/15.png)
+
+### Teacher
+
+![Teacher Overview](./attached_assets/16.png)
+![Teacher Overview](./attached_assets/17.png)
+![Teacher Overview](./attached_assets/18.png)
+
+
 
 ## ⚡ Quick Preview
 

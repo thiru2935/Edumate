@@ -105,13 +105,13 @@ export default function Home() {
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link href="/signup">
-              <Button size="lg" className="bg-white text-indigo-700 hover:bg-indigo-50 font-semibold px-8 py-3 rounded-xl text-base shadow-lg hover:shadow-xl transition-all">
+              <Button size="lg" className="bg-white text-indigo-700 hover:bg-indigo-50 font-semibold px-8 py-3 rounded-xl text-base shadow-lg hover:shadow-xl transition-all hover:bg-primary hover:text-white hover:border-white">
                 Get Started Free
                 <ArrowRight className="ml-2 h-5 w-5" />
               </Button>
             </Link>
             <Link href="#features">
-              <Button size="lg" variant="outline" className="border-white/30 text-white hover:bg-white/10 px-8 py-3 rounded-xl text-base">
+              <Button size="lg" variant="outline" className="border-white/30 text-white hover:bg-white/10 px-8 py-3 rounded-xl text-base hover:border-white hover:text-primary hover:bg-white">
                 Learn More
               </Button>
             </Link>
@@ -291,13 +291,13 @@ export default function Home() {
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link href="/signup">
-              <Button size="lg" className="bg-indigo-600 hover:bg-indigo-700 px-10 py-3 rounded-xl text-base font-semibold shadow-lg shadow-indigo-200">
+              <Button size="lg" className="bg-indigo-600 hover:bg-white hover:text-primary px-10 py-3 rounded-xl text-base font-semibold shadow-lg shadow-indigo-200">
                 Create Free Account
                 <ArrowRight className="ml-2 h-5 w-5" />
               </Button>
             </Link>
             <Link href="/login">
-              <Button size="lg" variant="outline" className="px-10 py-3 rounded-xl text-base">
+              <Button size="lg" variant="outline" className="px-10 py-3 rounded-xl text-base hover:bg-black hover:text-white">
                 Sign In
               </Button>
             </Link>
