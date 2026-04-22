@@ -78,10 +78,12 @@ The project is built for local-first developer experience in VS Code with clean 
 ## ⚡ Quick Preview
 
 - 🔐 JWT authentication with role-aware navigation
-- 🧠 Focus session tracking with point rewards
+- 🧠 3-level focus engine with adaptive scoring (`consistency + focus quality + recall`)
+- 🛡 Session integrity scoring (`0-100`) with anti-cheat confidence controls
+- 👁 Eye-health recovery intelligence (mandatory breaks, 20-20-20 reminders, screen-light mode)
 - 💬 Mentor/student real-time-style chat experience
 - 📚 Study material management for teachers
-- 🏆 Leaderboard + dashboard analytics
+- 🏆 Leaderboard + intervention-ready teacher analytics
 - 🧩 OpenAPI-driven API client + Zod schemas (single source of truth)
 
 ---
@@ -94,9 +96,32 @@ The project is built for local-first developer experience in VS Code with clean 
 - **Teacher dashboard** with leaderboard, student management, materials
 
 ### ⏱ Focus & Performance Tracking
-- Create and list study sessions
-- Earn focus points automatically
-- Track progress via summary + leaderboard endpoints
+- 3-level focus modes: Warm-up, Deep, Mastery
+- Per-session transparency with points breakdown history
+- Weekly trend charts for points + integrity
+- Adaptive level quality formula:
+
+	$$
+		ext{levelScore} = 0.4 \cdot \text{consistency} + 0.3 \cdot \text{focusQuality} + 0.3 \cdot \text{recallAccuracy}
+	$$
+
+- Reflection notes required for low-integrity sessions
+
+### 🛡 Anti-Cheat & Trust Layer
+- Tracks tab switching, window blur, idle bursts, and interaction quality
+- Computes `sessionIntegrityScore` (`0-100`)
+- Applies integrity multiplier to points for suspicious sessions
+- Soft moderation hooks:
+	- reflection requirement
+	- mentor review flagging
+	- anti-cheat telemetry events
+
+### 👁 Recovery Intelligence
+- Mandatory post-session break locks
+- 20-20-20 eye reminder cycles
+- Fatigue risk scoring
+- Screen-light day mode (audio-first learning flow)
+- Smart suggestions for shorter sessions / longer breaks
 
 ### 💬 Learning Collaboration
 - Peer/mentor chat by user ID
@@ -106,7 +131,11 @@ The project is built for local-first developer experience in VS Code with clean 
 ### 🛠 Teacher Operations
 - Update student focus points
 - Upload and manage study materials
-- Monitor aggregate platform overview
+- Monitor intervention intelligence:
+	- at-risk students
+	- improving students
+	- drifting students (high idle + low recall)
+	- stressed students (high pause rate + late-night patterns)
 
 ### 🔌 Contract-First API Tooling
 - OpenAPI 3.1 spec in `lib/api-spec/openapi.yaml`
@@ -291,10 +320,22 @@ GET  /healthz
 ### DB Domain Models
 - `users`
 - `sessions`
+- `focus_events`
 - `materials`
 - `chats`
 
 All schema definitions are managed in `lib/db/src/schema` and shared across workspace packages.
+
+### Session Analytics Captured
+
+`sessions` now stores detailed explainability and quality signals, including:
+
+- points components (`pointsBase`, bonuses, penalties, integrity multiplier)
+- focus metrics (`focusScore`, `focusChecks`, `focusedChecks`)
+- anti-cheat metrics (`tabSwitchCount`, `windowBlurCount`, `idleIncidentCount`, `idleSeconds`)
+- behavior metrics (`mouseMoves`, `scrollEvents`, `keyPresses`, `pauseCount`, `behaviorScore`)
+- quality metrics (`sessionIntegrityScore`, `consistencyScore`, `recallAccuracy`, `fatigueRiskScore`)
+- moderation flags (`reflectionRequired`, `mentorReviewFlagged`, `reflectionNote`)
 
 ### System Diagram
 
@@ -349,6 +390,12 @@ Contributions are welcome.
 - Keep workspace boundaries clean
 - Run `pnpm run typecheck` before PR
 - Update API spec + regenerate client/zod when changing endpoint contracts
+- For contract/schema changes, regenerate declaration outputs before app typechecks:
+	- `pnpm exec tsc -p lib/db/tsconfig.json`
+	- `pnpm exec tsc -p lib/api-zod/tsconfig.json`
+	- `pnpm exec tsc -p lib/api-client-react/tsconfig.json`
+- Apply DB schema updates with:
+	- `pnpm --filter @workspace/db run push`
 
 ---
 
@@ -356,7 +403,13 @@ Contributions are welcome.
 
 - [ ] Add test suite coverage for API and role flows
 - [ ] Improve chat UX and live updates
-- [ ] Add richer analytics widgets
+- [x] Add richer focus analytics widgets
+- [x] Add session integrity + anti-cheat confidence scoring
+- [x] Add teacher intervention intelligence panels
+- [x] Add telemetry event schema (`focus_events`)
+- [ ] Add background jobs for daily/weekly analytics aggregates
+- [ ] Add feature flags for scoring/anti-cheat modes
+- [ ] Add rate-limit + abuse detection hardening at edge/proxy layer
 - [ ] Add production deployment docs
 - [ ] Expand teacher workflow automation
 

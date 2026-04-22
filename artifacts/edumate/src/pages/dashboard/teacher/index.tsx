@@ -3,7 +3,7 @@ import { useGetTeacherOverview, useGetLeaderboard } from "@workspace/api-client-
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { Users, BookOpen, Target, Clock, TrendingUp, Zap, GraduationCap } from "lucide-react";
+import { Users, BookOpen, Target, Clock, TrendingUp, Zap, GraduationCap, ArrowUpRight, BrainCircuit, AlertTriangle } from "lucide-react";
 
 export default function TeacherDashboard() {
   const { data: overview, isLoading } = useGetTeacherOverview();
@@ -107,6 +107,104 @@ export default function TeacherDashboard() {
                   </div>
                 ))}
               </div>
+            </CardContent>
+          </Card>
+
+          {/* At-risk insights */}
+          <Card className="border lg:col-span-2">
+            <CardHeader className="pb-3">
+              <CardTitle className="text-base font-semibold flex items-center gap-2">
+                <Clock className="h-4 w-4 text-rose-600" />
+                Focus Risk Insights
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              {(overview?.atRiskStudents ?? []).length === 0 ? (
+                <div className="text-center py-6 text-muted-foreground text-sm">No high-risk students detected. Great class consistency 🎉</div>
+              ) : (
+                <div className="space-y-3">
+                  {overview?.atRiskStudents.map((student) => (
+                    <div key={student.id} className="rounded-xl border p-3 flex flex-wrap items-center gap-3">
+                      <p className="font-medium text-sm min-w-40">{student.name}</p>
+                      <Badge variant="outline">Integrity: {student.avgIntegrityScore}%</Badge>
+                      <Badge variant="outline">Idle incidents: {student.totalIdleIncidents}</Badge>
+                      <Badge variant="outline">Tab switches: {student.totalTabSwitches}</Badge>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </CardContent>
+          </Card>
+
+          <Card className="border lg:col-span-2">
+            <CardHeader className="pb-3">
+              <CardTitle className="text-base font-semibold flex items-center gap-2">
+                <ArrowUpRight className="h-4 w-4 text-emerald-600" />
+                Improving Students
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              {(overview?.improvingStudents ?? []).length === 0 ? (
+                <div className="text-center py-6 text-muted-foreground text-sm">No improvement data yet.</div>
+              ) : (
+                <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
+                  {overview?.improvingStudents.map((student) => (
+                    <div key={student.id} className="rounded-xl border p-3">
+                      <p className="font-medium text-sm">{student.name}</p>
+                      <p className="text-xs text-muted-foreground mt-1">+{student.pointsDelta7d} pts in 7 days</p>
+                      <Badge variant="outline" className="mt-2">Integrity {student.avgIntegrityScore}%</Badge>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </CardContent>
+          </Card>
+
+          <Card className="border lg:col-span-2">
+            <CardHeader className="pb-3">
+              <CardTitle className="text-base font-semibold flex items-center gap-2">
+                <BrainCircuit className="h-4 w-4 text-amber-600" />
+                Drifting Students
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              {(overview?.driftingStudents ?? []).length === 0 ? (
+                <div className="text-center py-6 text-muted-foreground text-sm">No drifting students detected.</div>
+              ) : (
+                <div className="space-y-3">
+                  {overview?.driftingStudents.map((student) => (
+                    <div key={student.id} className="rounded-xl border p-3 flex flex-wrap items-center gap-3">
+                      <p className="font-medium text-sm min-w-40">{student.name}</p>
+                      <Badge variant="outline">Idle avg: {student.avgIdleIncidents}</Badge>
+                      <Badge variant="outline">Recall avg: {student.avgRecallAccuracy}%</Badge>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </CardContent>
+          </Card>
+
+          <Card className="border lg:col-span-2">
+            <CardHeader className="pb-3">
+              <CardTitle className="text-base font-semibold flex items-center gap-2">
+                <AlertTriangle className="h-4 w-4 text-rose-600" />
+                Stressed Students
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              {(overview?.stressedStudents ?? []).length === 0 ? (
+                <div className="text-center py-6 text-muted-foreground text-sm">No stress signals detected.</div>
+              ) : (
+                <div className="space-y-3">
+                  {overview?.stressedStudents.map((student) => (
+                    <div key={student.id} className="rounded-xl border p-3 flex flex-wrap items-center gap-3">
+                      <p className="font-medium text-sm min-w-40">{student.name}</p>
+                      <Badge variant="outline">Pause rate: {student.pauseRate}</Badge>
+                      <Badge variant="outline">Late-night sessions: {student.lateNightSessions}</Badge>
+                    </div>
+                  ))}
+                </div>
+              )}
             </CardContent>
           </Card>
         </div>

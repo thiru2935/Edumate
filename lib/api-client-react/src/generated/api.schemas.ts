@@ -89,15 +89,77 @@ export interface UpdateFocusPointsBody {
 export interface Session {
   id: number;
   userId: number;
+  level: "warmup" | "deep" | "mastery";
   duration: number;
   pointsEarned: number;
+  pointsBase: number;
+  pointsQuizBonus: number;
+  pointsFocusBonus: number;
+  pointsBehaviorBonus: number;
+  pointsStreakBonus: number;
+  pointsDailyGoalBonus: number;
+  pointsPenaltyTab: number;
+  pointsPenaltyIdle: number;
+  pointsIntegrityMultiplier: number;
+  focusScore: number;
+  focusChecks: number;
+  focusedChecks: number;
+  tabSwitchCount: number;
+  windowBlurCount: number;
+  idleIncidentCount: number;
+  idleSeconds: number;
+  mouseMoves: number;
+  scrollEvents: number;
+  keyPresses: number;
+  pauseCount: number;
+  behaviorScore: number;
+  sessionIntegrityScore: number;
+  consistencyScore: number;
+  recallAccuracy: number;
+  fatigueRiskScore: number;
+  screenLightMode: boolean;
+  reflectionRequired: boolean;
+  mentorReviewFlagged: boolean;
+  reflectionNote: string;
+  cameraUsed: boolean;
   createdAt: string;
 }
 
 export interface CreateSessionBody {
+  level?: "warmup" | "deep" | "mastery";
   /** Duration in minutes */
   duration: number;
   pointsEarned: number;
+  pointsBase?: number;
+  pointsQuizBonus?: number;
+  pointsFocusBonus?: number;
+  pointsBehaviorBonus?: number;
+  pointsStreakBonus?: number;
+  pointsDailyGoalBonus?: number;
+  pointsPenaltyTab?: number;
+  pointsPenaltyIdle?: number;
+  pointsIntegrityMultiplier?: number;
+  focusScore?: number;
+  focusChecks?: number;
+  focusedChecks?: number;
+  tabSwitchCount?: number;
+  windowBlurCount?: number;
+  idleIncidentCount?: number;
+  idleSeconds?: number;
+  mouseMoves?: number;
+  scrollEvents?: number;
+  keyPresses?: number;
+  pauseCount?: number;
+  behaviorScore?: number;
+  sessionIntegrityScore?: number;
+  consistencyScore?: number;
+  recallAccuracy?: number;
+  fatigueRiskScore?: number;
+  screenLightMode?: boolean;
+  reflectionRequired?: boolean;
+  mentorReviewFlagged?: boolean;
+  reflectionNote?: string;
+  cameraUsed?: boolean;
 }
 
 export interface Material {
@@ -150,6 +212,39 @@ export interface TeacherOverview {
   totalMaterials: number;
   totalSessions: number;
   topStudents: LeaderboardEntry[];
+  atRiskStudents: AtRiskStudent[];
+  improvingStudents: ImprovingStudent[];
+  driftingStudents: DriftingStudent[];
+  stressedStudents: StressedStudent[];
+}
+
+export interface AtRiskStudent {
+  id: number;
+  name: string;
+  avgIntegrityScore: number;
+  totalIdleIncidents: number;
+  totalTabSwitches: number;
+}
+
+export interface ImprovingStudent {
+  id: number;
+  name: string;
+  pointsDelta7d: number;
+  avgIntegrityScore: number;
+}
+
+export interface DriftingStudent {
+  id: number;
+  name: string;
+  avgIdleIncidents: number;
+  avgRecallAccuracy: number;
+}
+
+export interface StressedStudent {
+  id: number;
+  name: string;
+  pauseRate: number;
+  lateNightSessions: number;
 }
 
 export type ListUsersParams = {

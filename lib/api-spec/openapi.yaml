@@ -496,28 +496,217 @@ components:
           type: integer
         userId:
           type: integer
+        level:
+          type: string
+          enum: [warmup, deep, mastery]
         duration:
           type: integer
         pointsEarned:
           type: integer
+        pointsBase:
+          type: integer
+        pointsQuizBonus:
+          type: integer
+        pointsFocusBonus:
+          type: integer
+        pointsBehaviorBonus:
+          type: integer
+        pointsStreakBonus:
+          type: integer
+        pointsDailyGoalBonus:
+          type: integer
+        pointsPenaltyTab:
+          type: integer
+        pointsPenaltyIdle:
+          type: integer
+        pointsIntegrityMultiplier:
+          type: integer
+        focusScore:
+          type: integer
+        focusChecks:
+          type: integer
+        focusedChecks:
+          type: integer
+        tabSwitchCount:
+          type: integer
+        windowBlurCount:
+          type: integer
+        idleIncidentCount:
+          type: integer
+        idleSeconds:
+          type: integer
+        mouseMoves:
+          type: integer
+        scrollEvents:
+          type: integer
+        keyPresses:
+          type: integer
+        pauseCount:
+          type: integer
+        behaviorScore:
+          type: integer
+        sessionIntegrityScore:
+          type: integer
+        consistencyScore:
+          type: integer
+        recallAccuracy:
+          type: integer
+        fatigueRiskScore:
+          type: integer
+        screenLightMode:
+          type: boolean
+        reflectionRequired:
+          type: boolean
+        mentorReviewFlagged:
+          type: boolean
+        reflectionNote:
+          type: string
+        cameraUsed:
+          type: boolean
         createdAt:
           type: string
           format: date-time
       required:
         - id
         - userId
+        - level
         - duration
         - pointsEarned
+        - pointsBase
+        - pointsQuizBonus
+        - pointsFocusBonus
+        - pointsBehaviorBonus
+        - pointsStreakBonus
+        - pointsDailyGoalBonus
+        - pointsPenaltyTab
+        - pointsPenaltyIdle
+        - pointsIntegrityMultiplier
+        - focusScore
+        - focusChecks
+        - focusedChecks
+        - tabSwitchCount
+        - windowBlurCount
+        - idleIncidentCount
+        - idleSeconds
+        - mouseMoves
+        - scrollEvents
+        - keyPresses
+        - pauseCount
+        - behaviorScore
+        - sessionIntegrityScore
+        - consistencyScore
+        - recallAccuracy
+        - fatigueRiskScore
+        - screenLightMode
+        - reflectionRequired
+        - mentorReviewFlagged
+        - reflectionNote
+        - cameraUsed
         - createdAt
 
     CreateSessionBody:
       type: object
       properties:
+        level:
+          type: string
+          enum: [warmup, deep, mastery]
         duration:
           type: integer
           description: Duration in minutes
         pointsEarned:
           type: integer
+        pointsBase:
+          type: integer
+          minimum: 0
+        pointsQuizBonus:
+          type: integer
+          minimum: 0
+        pointsFocusBonus:
+          type: integer
+          minimum: 0
+        pointsBehaviorBonus:
+          type: integer
+          minimum: 0
+        pointsStreakBonus:
+          type: integer
+          minimum: 0
+        pointsDailyGoalBonus:
+          type: integer
+          minimum: 0
+        pointsPenaltyTab:
+          type: integer
+          minimum: 0
+        pointsPenaltyIdle:
+          type: integer
+          minimum: 0
+        pointsIntegrityMultiplier:
+          type: integer
+          minimum: 0
+          maximum: 100
+        focusScore:
+          type: integer
+          minimum: 0
+          maximum: 100
+        focusChecks:
+          type: integer
+          minimum: 0
+        focusedChecks:
+          type: integer
+          minimum: 0
+        tabSwitchCount:
+          type: integer
+          minimum: 0
+        windowBlurCount:
+          type: integer
+          minimum: 0
+        idleIncidentCount:
+          type: integer
+          minimum: 0
+        idleSeconds:
+          type: integer
+          minimum: 0
+        mouseMoves:
+          type: integer
+          minimum: 0
+        scrollEvents:
+          type: integer
+          minimum: 0
+        keyPresses:
+          type: integer
+          minimum: 0
+        pauseCount:
+          type: integer
+          minimum: 0
+        behaviorScore:
+          type: integer
+          minimum: 0
+          maximum: 100
+        sessionIntegrityScore:
+          type: integer
+          minimum: 0
+          maximum: 100
+        consistencyScore:
+          type: integer
+          minimum: 0
+          maximum: 100
+        recallAccuracy:
+          type: integer
+          minimum: 0
+          maximum: 100
+        fatigueRiskScore:
+          type: integer
+          minimum: 0
+          maximum: 100
+        screenLightMode:
+          type: boolean
+        reflectionRequired:
+          type: boolean
+        mentorReviewFlagged:
+          type: boolean
+        reflectionNote:
+          type: string
+        cameraUsed:
+          type: boolean
       required:
         - duration
         - pointsEarned
@@ -645,9 +834,100 @@ components:
           type: array
           items:
             $ref: "#/components/schemas/LeaderboardEntry"
+        atRiskStudents:
+          type: array
+          items:
+            $ref: "#/components/schemas/AtRiskStudent"
+        improvingStudents:
+          type: array
+          items:
+            $ref: "#/components/schemas/ImprovingStudent"
+        driftingStudents:
+          type: array
+          items:
+            $ref: "#/components/schemas/DriftingStudent"
+        stressedStudents:
+          type: array
+          items:
+            $ref: "#/components/schemas/StressedStudent"
       required:
         - totalStudents
         - totalMentors
         - totalMaterials
         - totalSessions
         - topStudents
+        - atRiskStudents
+        - improvingStudents
+        - driftingStudents
+        - stressedStudents
+
+    AtRiskStudent:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        avgIntegrityScore:
+          type: integer
+        totalIdleIncidents:
+          type: integer
+        totalTabSwitches:
+          type: integer
+      required:
+        - id
+        - name
+        - avgIntegrityScore
+        - totalIdleIncidents
+        - totalTabSwitches
+
+    ImprovingStudent:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        pointsDelta7d:
+          type: integer
+        avgIntegrityScore:
+          type: integer
+      required:
+        - id
+        - name
+        - pointsDelta7d
+        - avgIntegrityScore
+
+    DriftingStudent:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        avgIdleIncidents:
+          type: integer
+        avgRecallAccuracy:
+          type: integer
+      required:
+        - id
+        - name
+        - avgIdleIncidents
+        - avgRecallAccuracy
+
+    StressedStudent:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        pauseRate:
+          type: integer
+        lateNightSessions:
+          type: integer
+      required:
+        - id
+        - name
+        - pauseRate
+        - lateNightSessions
